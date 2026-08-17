@@ -279,6 +279,19 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="xingyao-entries.csv"' });
       return res.end('﻿' + header + rows);
     }
+    // 一键清空测试数据（后台用，需口令）：清空上传记录 + 删除所有测试图片
+    if (p === '/api/clear' && req.method === 'POST') {
+      if (!adminOk(url)) { res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('未授权：需要 ?token= 口令'); }
+      try {
+        const files = fs.readdirSync(UPLOADS);
+        for (const f of files) {
+          const fp = path.join(UPLOADS, f);
+          if (fs.statSync(fp).isFile()) fs.unlinkSync(fp);
+        }
+      } catch (e) { /* 清理异常忽略 */ }
+      saveData({ entries: [] });
+      return sendJSON(res, { ok: true, cleared: true });
+    }
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('404');
   } catch (err) {
