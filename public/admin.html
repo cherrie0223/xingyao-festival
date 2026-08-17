@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星耀中国 · 管理后台</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#0c1a36;color:#eaf1ff;margin:0;padding:24px;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .sub{color:#9fb3d8;font-size:13px;margin-bottom:18px;}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .btn{background:linear-gradient(135deg,#0047b4,#7cbe24);color:#fff;border:none;padding:10px 16px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;}
+  .btn.alt{background:rgba(255,255,255,.1);}
+  .stat{font-size:14px;color:#cfe0ff;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:rgba(255,255,255,.03);border-radius:10px;overflow:hidden;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top;}
+  th{background:rgba(124,190,36,.15);color:#cfe0ff;}
+  .thumb{width:80px;height:80px;object-fit:cover;border-radius:8px;}
+  .bdg{display:inline-block;background:#7cbe24;color:#081227;padding:1px 8px;border-radius:8px;font-size:11px;font-weight:700;}
+  a.dl{color:#ffd24a;}
+  .empty{color:#9fb3d8;padding:20px;text-align:center;}
+</style>
+</head>
+<body>
+  <h1>星耀中国 · 管理后台</h1>
+  <div class="sub">总部下载素材，制作明信片。照片与留言数据均来自员工上传。</div>
+  <div class="bar">
+    <button class="btn" id="zipBtn">⬇ 打包下载全部图片 (ZIP)</button>
+    <button class="btn alt" id="csvBtn">⬇ 导出 CSV（留言+姓名）</button>
+    <button class="btn alt" id="refresh">↻ 刷新</button>
+  </div>
+  <div class="stat" id="stat"></div>
+  <table id="tbl">
+    <thead><tr><th>照片</th><th>昵称</th><th>地区</th><th>想说的话</th><th>星光点姓名</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+<script>
+async function load(){
+  const r=await fetch('/api/entries'); const list=await r.json();
+  const rows=document.getElementById('rows'); rows.innerHTML='';
+    if(!list.length){rows.innerHTML='<tr><td colspan="5" class="empty">暂无上传记录</td></tr>';}
+    const litRegions=new Set(list.map(e=>e.region).filter(Boolean));
+    list.forEach(e=>{
+      const tr=document.createElement('tr');
+      const img=`<img class="thumb" src="/api/image/${e.id}" alt=""/>`;
+      tr.innerHTML=`<td>${img}</td><td>${esc(e.nickname)}</td><td>${esc(e.region)}</td>`+
+        `<td>${esc(e.message)||'—'}</td>`+
+        `<td>${esc(e.starName)||'—'}</td>`;
+      rows.appendChild(tr);
+    });
+    document.getElementById('stat').textContent=
+      `共 ${list.length} 人点亮 · 覆盖 ${litRegions.size}/6 站 · 已登记星光点 ${list.filter(e=>e.starName).length} 人`;
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+document.getElementById('zipBtn').onclick=()=>{window.location='/admin/download'+location.search;};
+document.getElementById('csvBtn').onclick=()=>{window.location='/admin/csv'+location.search;};
+document.getElementById('refresh').onclick=load;
+load();
+</script>
+</body>
+</html>

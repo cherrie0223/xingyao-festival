@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>星耀中国 · 万里同月</title>
+<style>
+  :root{
+    --navy:#1a2f5b; --blue:#0047b4; --green:#7cbe24; --gold:#ffd24a;
+    --ink:#eaf1ff; --muted:#9fb3d8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(1200px 600px at 70% -10%, #16315f 0%, #0c1a36 55%, #081227 100%);
+    color:var(--ink); min-height:100vh;
+  }
+  .wrap{max-width:1040px; margin:0 auto; padding:24px 18px 60px;}
+  header{display:flex; align-items:center; gap:14px; margin-bottom:8px;}
+  .logo{width:54px;height:54px;flex:0 0 auto;border-radius:12px;background:rgba(255,255,255,.06);padding:4px;object-fit:contain;}
+  h1{font-size:26px; margin:0; letter-spacing:1px;}
+  h1 small{display:block; font-size:13px; color:var(--muted); font-weight:400; letter-spacing:3px; margin-top:4px;}
+  .sub{color:var(--muted); font-size:14px; margin:6px 0 22px;}
+
+  .grid{display:grid; grid-template-columns:1.35fr 1fr; gap:18px;}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;}}
+  .card{background:rgba(255,255,255,.04); border:1px solid rgba(124,190,36,.25); border-radius:16px; padding:16px;}
+  .card h2{font-size:15px; margin:0 0 12px; color:#cfe0ff; letter-spacing:1px;}
+
+  svg.map{width:100%; height:auto; display:block; border-radius:12px;
+    background:
+      radial-gradient(620px 440px at 50% 16%, rgba(0,71,180,.22), transparent 66%),
+      #0b1a38;}
+  .province{fill:rgba(0,71,180,.18); stroke:rgba(150,190,245,.55); stroke-width:1.1;}
+  .star{fill:#cfe0ff; opacity:.5; animation:tw 3s infinite ease-in-out;}
+  @keyframes tw{0%,100%{opacity:.12}50%{opacity:.85}}
+  .arc{fill:none; stroke:rgba(160,200,250,.55); stroke-width:1.8; stroke-dasharray:6 8; animation:dash 2.2s linear infinite; opacity:.7;}
+  @keyframes dash{to{stroke-dashoffset:-28;}}
+  .node circle{fill:rgba(170,205,250,.85); stroke:rgba(200,225,255,.95); stroke-width:1.6; filter:url(#glow); transition:.4s;}
+  .node.lit circle{fill:var(--gold); stroke:var(--green); stroke-width:2;}
+  .node text{fill:#dbe7ff; font-size:15px; text-anchor:middle; paint-order:stroke; stroke:#0b1a38; stroke-width:3px;}
+  .node.lit text{fill:#fff; font-weight:700;}
+  .pulse{fill:var(--gold); opacity:.45; animation:pulse 2s infinite;}
+  @keyframes pulse{0%{r:9;opacity:.5}100%{r:28;opacity:0}}
+
+  .progress{height:8px; background:rgba(255,255,255,.1); border-radius:6px; overflow:hidden; margin:6px 0 2px;}
+  .progress > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--green)); transition:width .9s ease;}
+  .stat{font-size:13px; color:var(--muted); margin:8px 0 4px;}
+
+  .form label{display:block; font-size:13px; color:var(--muted); margin:12px 0 6px;}
+  .form input[type=text], .form textarea, .form select{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.15);
+    background:rgba(0,0,0,.25); color:var(--ink); font-size:14px; outline:none;
+  }
+  .form textarea{resize:vertical; min-height:64px;}
+  .form input:focus, .form textarea:focus, .form select:focus{border-color:var(--green);}
+  .preview{margin-top:10px; display:none; max-height:160px; border-radius:10px; overflow:hidden;}
+  .preview img{width:100%; object-fit:cover; max-height:160px;}
+  .btn{
+    display:inline-block; border:none; cursor:pointer; font-size:15px; font-weight:600;
+    padding:12px 18px; border-radius:12px; color:#fff; background:linear-gradient(135deg,var(--blue),var(--green));
+    width:100%; margin-top:16px; transition:.2s;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  .feed{margin-top:10px; max-height:300px; overflow:auto;}
+  .feed li{list-style:none; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.04); margin-bottom:8px; font-size:13px;}
+  .feed .who{color:var(--gold); font-weight:600;}
+  .feed .rg{color:var(--green);}
+  .feed .msg{color:var(--muted); margin-top:4px; display:block; word-break:break-all;}
+
+  .riddle{margin-top:14px; padding:14px; border-radius:12px; background:rgba(124,190,36,.08); border:1px solid rgba(124,190,36,.3);}
+  .riddle .q{font-size:15px; margin-bottom:10px;}
+  .opt{display:block; width:100%; text-align:left; padding:10px 12px; margin-bottom:8px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:rgba(0,0,0,.2); color:var(--ink); cursor:pointer; font-size:14px;}
+  .opt:hover{border-color:var(--green);}
+  .opt.ok{background:rgba(124,190,36,.3); border-color:var(--green);}
+  .opt.no{background:rgba(200,40,40,.3); border-color:#c0392b;}
+  .hidden{display:none;}
+  .ok-msg{color:var(--gold); font-weight:600; margin:8px 0;}
+  .fail-msg{color:#ff9a9a; font-weight:600; margin:8px 0;}
+  .tip{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5;}
+
+  .foot{text-align:center; margin-top:26px; font-size:13px; color:var(--muted);}
+
+  .toast{
+    position:fixed; left:50%; top:16%; transform:translateX(-50%);
+    background:rgba(10,20,40,.96); border:1px solid var(--green); color:#fff;
+    padding:12px 22px; border-radius:12px; font-size:15px; z-index:99;
+    box-shadow:0 8px 30px rgba(0,0,0,.45); max-width:80%;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="/logo2.png" alt="万里安" />
+    <h1>星耀中国 · 万里同月<small>MAINLINE · MID-AUTUMN &amp; NATIONAL DAY</small></h1>
+  </header>
+  <div class="sub">上传一张含月亮、国旗或月饼的照片，点亮你所在地区的星图，并写下想说的话 —— 一起把双节的祝福，汇成满天星。</div>
+
+  <div class="grid">
+    <!-- 左：地图 + 点亮列表 -->
+    <div class="card">
+      <h2>星图点亮 · 万里同月</h2>
+      <svg class="map" viewBox="0 0 1000 800" id="map"></svg>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="stat" id="stat">已点亮 0 / 50 颗星</div>
+      <ul class="feed" id="feed"></ul>
+    </div>
+
+    <!-- 右：上传 + 灯谜 -->
+    <div class="card">
+      <h2>上传 &amp; 点亮</h2>
+      <div class="form" id="stepForm">
+        <label>① 选择照片（含月亮 / 国旗 / 月饼）</label>
+        <input type="file" id="file" accept="image/*" />
+        <div class="preview" id="preview"><img id="previewImg" alt="预览"/></div>
+
+        <label>② 你的昵称</label>
+        <input type="text" id="nickname" placeholder="例如：小万" maxlength="20"/>
+
+        <label>③ 所在地区</label>
+        <select id="region">
+          <option value="">请选择</option>
+          <option>徐汇</option><option>浦东</option><option>岱山</option>
+          <option>成都</option><option>郑州</option><option>乌鲁木齐</option>
+        </select>
+
+        <label>④ 想说的话</label>
+        <textarea id="message" placeholder="对同事 / 公司想说的一句话……（你的话，也许会被悄悄收藏 🌙）"></textarea>
+
+        <button class="btn" id="submitBtn">点亮我的星图</button>
+      </div>
+
+      <div class="riddle hidden" id="riddleBox">
+        <div class="q" id="riddleQ"></div>
+        <div id="riddleOpts"></div>
+        <div class="ok-msg hidden" id="riddleOk">答对啦！获得 1 星光点 🌟</div>
+        <div class="fail-msg hidden" id="riddleFail">答错了，本次没有获得星光点，但你的星图已经点亮 🌟</div>
+        <div class="hidden" id="nameBox">
+          <label style="color:var(--muted);font-size:13px;">登记姓名，活动结束后统一在小程序发放星光点：</label>
+          <input type="text" id="starName" placeholder="员工姓名" maxlength="20"/>
+          <button class="btn" id="nameBtn">确认领取</button>
+        </div>
+        <button class="btn hidden" id="finishBtn">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">万里同月 · 一起把祝福汇成满天星 ✨</div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/d3.min.js"></script>
+<script>
+const TARGET = 50; // 目标点亮人数
+const STATIONS = [
+  { name:'乌鲁木齐', lng:87.62,  lat:43.82, dx:0,  dy:0,  lx:0,  ly:24 },
+  { name:'成都',     lng:104.07, lat:30.57, dx:0,  dy:0,  lx:0,  ly:24 },
+  { name:'郑州',     lng:113.62, lat:34.75, dx:0,  dy:0,  lx:0,  ly:24 },
+  { name:'徐汇',     lng:121.43, lat:31.18, dx:0,  dy:0,  lx:0,  ly:26 },
+  { name:'浦东',     lng:121.80, lat:31.15, dx:36, dy:22, lx:10, ly:34 },
+  { name:'岱山',     lng:122.20, lat:30.25, dx:8,  dy:-36, lx:0, ly:-14 }
+];
+const HUB = '徐汇';
+let litRegions = new Set();
+let projection = null, pathGen = null, geo = null;
+let currentId = null;
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('hidden');
+  clearTimeout(window.__tt);
+  window.__tt=setTimeout(()=>t.classList.add('hidden'), 2400);
+}
+
+// —— 地图绘制（显式投影，避免被畸形几何拖累）——
+async function initMap(){
+  try{
+    geo = await fetch('/china.json').then(r=>r.json());
+    projection = d3.geoMercator().center([104,35]).scale(880).translate([500,410]);
+    pathGen = d3.geoPath(projection);
+    drawBase(); drawStars();
+  }catch(e){ console.warn('地图加载失败', e); }
+}
+function drawBase(){
+  const svg = d3.select('#map');
+  const defs = svg.append('defs');
+  const grad = defs.append('linearGradient').attr('id','arcGrad').attr('x1','0').attr('y1','0').attr('x2','1').attr('y2','1');
+  grad.append('stop').attr('offset','0%').attr('stop-color','#0047b4');
+  grad.append('stop').attr('offset','100%').attr('stop-color','#7cbe24');
+  const f = defs.append('filter').attr('id','glow').attr('x','-60%').attr('y','-60%').attr('width','220%').attr('height','220%');
+  f.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','b');
+  const fm = f.append('feMerge'); fm.append('feMergeNode').attr('in','b'); fm.append('feMergeNode').attr('in','SourceGraphic');
+
+  const mapG = svg.append('g').attr('id','mapG');
+  mapG.selectAll('path').data(geo.features).enter().append('path')
+    .attr('class','province').attr('d', pathGen);
+  window.__arcG = svg.append('g').attr('id','arcs');
+  window.__nodeG = svg.append('g').attr('id','nodes');
+}
+function drawStars(){
+  const sg = d3.select('#map').append('g').attr('id','stars');
+  for(let i=0;i<150;i++){
+    sg.append('circle').attr('class','star')
+      .attr('cx', Math.random()*1000).attr('cy', Math.random()*800)
+      .attr('r', Math.random()*1.3+0.3)
+      .style('animation-delay', (Math.random()*3).toFixed(2)+'s');
+  }
+}
+function renderMap(){
+  if(!projection) return;
+  const arcG = window.__arcG, nodeG = window.__nodeG;
+  arcG.selectAll('*').remove(); nodeG.selectAll('*').remove();
+  const pos = {}; STATIONS.forEach(s => { const b=projection([s.lng, s.lat]); pos[s.name]=[b[0]+(s.dx||0), b[1]+(s.dy||0)]; });
+  const [hx,hy] = pos[HUB];
+  STATIONS.forEach(s=>{
+    if(s.name===HUB) return;
+    const [x,y] = pos[s.name];
+    const mx=(hx+x)/2, my=(hy+y)/2 - Math.abs(hx-x)*0.12 - 18;
+    arcG.append('path').attr('class','arc').attr('d',`M${hx},${hy} Q${mx},${my} ${x},${y}`);
+  });
+  STATIONS.forEach(s=>{
+    const [x,y] = pos[s.name];
+    const lit = litRegions.has(s.name);
+    const g = nodeG.append('g').attr('class','node'+(lit?' lit':'')).attr('transform',`translate(${x},${y})`);
+    if(lit) g.append('circle').attr('class','pulse').attr('r',9);
+    g.append('circle').attr('r', lit?9:6.5);
+    g.append('text').attr('x', s.lx||0).attr('y', (lit?26:23)+(s.ly||0)).text(s.name);
+  });
+}
+
+async function loadEntries(){
+  try{
+    const r = await fetch('/api/entries'); const list = await r.json();
+    litRegions = new Set(list.map(e=>e.region).filter(Boolean));
+    const count = list.length;
+    renderMap();
+    document.getElementById('stat').textContent = `已点亮 ${count} / ${TARGET} 颗星 · 覆盖 ${litRegions.size}/6 站`;
+    document.getElementById('bar').style.width = Math.min(100, count/TARGET*100) + '%';
+    const feed = document.getElementById('feed'); feed.innerHTML='';
+    [...list].reverse().forEach(e=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<span class="who">${escapeHtml(e.nickname)}</span> 点亮了 <span class="rg">${e.region}</span> 的星图`+
+        (e.message?`<span class="msg">“${escapeHtml(e.message)}”</span>`:'');
+      feed.appendChild(li);
+    });
+  }catch(e){}
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// —— 预览 ——
+document.getElementById('file').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{document.getElementById('previewImg').src=ev.target.result; document.getElementById('preview').style.display='block';};
+  reader.readAsDataURL(f);
+});
+
+// —— 提交点亮 ——
+document.getElementById('submitBtn').addEventListener('click',async ()=>{
+  const f=document.getElementById('file').files[0];
+  if(!f){showToast('请先选择一张照片 📷');return;}
+  const nickname=document.getElementById('nickname').value.trim();
+  if(!nickname){showToast('请填写昵称 ✍️');return;}
+  const region=document.getElementById('region').value;
+  if(!region){showToast('请选择所在地区 📍');return;}
+  const message=document.getElementById('message').value.trim();
+  const reader=new FileReader();
+  reader.onload=async ()=>{
+    const photo=reader.result;
+    const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.textContent='点亮中…';
+    try{
+      const r=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({photo,nickname,region,message})});
+      const data=await r.json();
+      if(data.error){showToast(data.error); btn.disabled=false; btn.textContent='点亮我的星图'; return;}
+      currentId=data.id;
+      document.getElementById('stepForm').classList.add('hidden');
+      showRiddle();
+    }catch(err){showToast('上传失败，请重试'); btn.disabled=false; btn.textContent='点亮我的星图';}
+  };
+  reader.readAsDataURL(f);
+});
+
+// —— 灯谜（一次性作答，选错即失去星光点）——
+async function showRiddle(){
+  const box=document.getElementById('riddleBox'); box.classList.remove('hidden');
+  const r=await fetch('/api/riddle').then(x=>x.json());
+  showRiddleWith(r, r.answer);
+}
+function showRiddleWith(r, ans){
+  const arr=r.options.map((t,i)=>({t,c:i===ans}));
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  document.getElementById('riddleQ').textContent='🎑 灯谜 / 小问答：'+r.q;
+  const opts=document.getElementById('riddleOpts'); opts.innerHTML='';
+  arr.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o.t;
+    b.onclick=()=>{
+      // 仅一次作答机会：立即禁用全部选项
+      [...opts.children].forEach(x=>x.disabled=true);
+      if(o.c){
+        b.classList.add('ok');
+        document.getElementById('riddleOk').classList.remove('hidden');
+        document.getElementById('nameBox').classList.remove('hidden');
+      } else {
+        b.classList.add('no');
+        document.getElementById('riddleFail').classList.remove('hidden');
+        document.getElementById('finishBtn').classList.remove('hidden');
+      }
+    };
+    opts.appendChild(b);
+  });
+}
+
+document.getElementById('nameBtn').addEventListener('click',async ()=>{
+  const name=document.getElementById('starName').value.trim();
+  if(!name){showToast('请登记姓名');return;}
+  const r=await fetch('/api/points',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id:currentId,name})});
+  const d=await r.json();
+  if(d.ok){ document.getElementById('nameBtn').textContent='已领取 ✅'; document.getElementById('nameBtn').disabled=true;
+    document.getElementById('starName').disabled=true;
+    setTimeout(()=>{ resetAll(); }, 1500);
+  } else showToast(d.error||'领取失败');
+});
+
+document.getElementById('finishBtn').addEventListener('click',()=>{ resetAll(); });
+
+function resetAll(){
+  document.getElementById('stepForm').classList.remove('hidden');
+  document.getElementById('riddleBox').classList.add('hidden');
+  document.getElementById('riddleOk').classList.add('hidden');
+  document.getElementById('riddleFail').classList.add('hidden');
+  document.getElementById('nameBox').classList.add('hidden');
+  document.getElementById('finishBtn').classList.add('hidden');
+  document.getElementById('file').value=''; document.getElementById('preview').style.display='none';
+  document.getElementById('nickname').value=''; document.getElementById('region').value='';
+  document.getElementById('message').value='';
+  document.getElementById('starName').value=''; document.getElementById('starName').disabled=false;
+  const btn=document.getElementById('submitBtn'); btn.disabled=false; btn.textContent='点亮我的星图';
+  loadEntries();
+}
+
+initMap().then(()=>{ loadEntries(); setInterval(loadEntries, 5000); }).catch(e=>{ console.error('地图初始化失败', e); showToast('地图加载异常，请刷新重试'); });
+</script>
+</body>
+</html>

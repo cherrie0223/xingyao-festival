@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>活动题库 · 星耀中国</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(1200px 600px at 70% -10%, #16315f 0%, #0c1a36 55%, #081227 100%);color:#eaf1ff;margin:0;padding:28px 18px 60px;}
+  .wrap{max-width:880px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+  .logo{width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,.06);padding:4px;object-fit:contain;}
+  h1{font-size:24px;margin:0;}
+  .sub{color:#9fb3d8;font-size:13px;margin:6px 0 22px;}
+  .q{background:rgba(255,255,255,.04);border:1px solid rgba(124,190,36,.22);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+  .q .no{color:#ffd24a;font-weight:700;margin-right:8px;}
+  .q .t{font-size:15px;margin-bottom:8px;}
+  .opt{font-size:14px;padding:6px 10px;border-radius:8px;margin:4px 0;background:rgba(0,0,0,.18);}
+  .opt.ok{background:rgba(124,190,36,.28);border:1px solid #7cbe24;}
+  .tag{display:inline-block;font-size:11px;color:#081227;background:#7cbe24;border-radius:6px;padding:1px 7px;margin-left:8px;font-weight:700;}
+  a.back{color:#ffd24a;text-decoration:none;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img class="logo" src="/logo2.png" alt="万里安"/><h1>活动题库</h1></header>
+  <div class="sub">共 <span id="cnt">…</span> 题 · 灯谜 / 国庆 / 航空 / 公司类 · 正确答案为绿色项。总部内部查看用。</div>
+  <div id="list"></div>
+  <p><a class="back" href="/">← 返回互动页</a> · <a class="back" href="/admin">前往管理后台</a></p>
+</div>
+<script>
+fetch('/api/questions').then(r=>r.json()).then(list=>{
+  document.getElementById('cnt').textContent=list.length;
+  const box=document.getElementById('list');
+  list.forEach(item=>{
+    const div=document.createElement('div'); div.className='q';
+    let opts='';
+    item.options.forEach((o,i)=>{
+      const ok = i===item.answer;
+      opts+=`<div class="opt${ok?' ok':''}">${ok?'✅ ':''}${o}${ok?'<span class="tag">正确答案</span>':''}</div>`;
+    });
+    div.innerHTML=`<div class="t"><span class="no">${item.no}.</span>${item.q}</div>${opts}`;
+    box.appendChild(div);
+  });
+}).catch(()=>{document.getElementById('list').textContent='加载失败';});
+</script>
+</body>
+</html>
