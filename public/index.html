@@ -136,12 +136,12 @@
       <div class="riddle hidden" id="riddleBox">
         <div class="q" id="riddleQ"></div>
         <div id="riddleOpts"></div>
-        <div class="ok-msg hidden" id="riddleOk">答对啦！获得 1 星光点 🌟</div>
-        <div class="fail-msg hidden" id="riddleFail">答错了，本次没有获得星光点，但你的星图已经点亮 🌟</div>
+        <div class="ok-msg hidden" id="riddleOk">你已成功参与赢取星光点的活动，具体的获奖名单请关注后续的消息！</div>
+        <div class="fail-msg hidden" id="riddleFail">很遗憾未答对，本次未获得抽奖资格，但你的星图已点亮 🌟</div>
         <div class="hidden" id="nameBox">
-          <label style="color:var(--muted);font-size:13px;">登记姓名，活动结束后统一在小程序发放星光点：</label>
+          <label style="color:var(--muted);font-size:13px;">登记姓名，作为抽奖参与凭证（获奖名单后续公布）：</label>
           <input type="text" id="starName" placeholder="员工姓名" maxlength="20"/>
-          <button class="btn" id="nameBtn">确认领取</button>
+          <button class="btn" id="nameBtn">确认参与</button>
         </div>
         <button class="btn hidden" id="finishBtn">完成</button>
       </div>
@@ -292,7 +292,7 @@ document.getElementById('submitBtn').addEventListener('click',async ()=>{
   reader.readAsDataURL(f);
 });
 
-// —— 灯谜（一次性作答，选错即失去星光点）——
+// —— 灯谜（一次性作答，答对即获得抽奖资格）——
 async function showRiddle(){
   const box=document.getElementById('riddleBox'); box.classList.remove('hidden'); notifyHeight();
   const r=await fetch('/api/riddle').then(x=>x.json());

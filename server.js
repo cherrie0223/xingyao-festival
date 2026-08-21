@@ -224,7 +224,7 @@ const server = http.createServer(async (req, res) => {
       const d = loadData();
       const e = d.entries.find(x => x.id === body.id);
       if (!e) return sendJSON(res, { error: '记录不存在' }, 404);
-      e.starName = name;
+      e.starName = name; // 答对者登记的抽奖参与姓名（后续从中抽取星光优秀奖）
       saveData(d);
       return sendJSON(res, { ok: true });
     }
@@ -246,7 +246,7 @@ const server = http.createServer(async (req, res) => {
         if (fs2.length) files.push({ name: `${e.region}_${e.nickname}_${e.id}${path.extname(fs2[0])}`, data: fs.readFileSync(path.join(UPLOADS, fs2[0])) });
       }
       // CSV
-      const header = 'id,nickname,region,message,starName\n';
+      const header = 'id,nickname,region,message,抽奖登记\n';
       const rows = d.entries.map(e => [e.id, e.nickname, e.region, `"${String(e.message).replace(/"/g, '""')}"`, e.starName || ''].join(',')).join('\n');
       files.push({ name: 'entries.csv', data: Buffer.from(header + rows, 'utf8') });
       const zip = buildZip(files);
@@ -274,7 +274,7 @@ const server = http.createServer(async (req, res) => {
     if (p === '/admin/csv' && req.method === 'GET') {
       if (!adminOk(url)) { res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('未授权：需要 ?token= 口令'); }
       const d = loadData();
-      const header = 'id,nickname,region,message,starName\n';
+      const header = 'id,nickname,region,message,抽奖登记\n';
       const rows = d.entries.map(e => [e.id, e.nickname, e.region, `"${String(e.message).replace(/"/g, '""')}"`, e.starName || ''].join(',')).join('\n');
       res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="xingyao-entries.csv"' });
       return res.end('﻿' + header + rows);

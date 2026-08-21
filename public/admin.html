@@ -33,7 +33,7 @@
   </div>
   <div class="stat" id="stat"></div>
   <table id="tbl">
-    <thead><tr><th>照片</th><th>昵称</th><th>地区</th><th>想说的话</th><th>星光点姓名</th></tr></thead>
+    <thead><tr><th>照片</th><th>昵称</th><th>地区</th><th>想说的话</th><th>抽奖登记</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
 
@@ -52,7 +52,7 @@ async function load(){
       rows.appendChild(tr);
     });
     document.getElementById('stat').textContent=
-      `共 ${list.length} 人点亮 · 覆盖 ${litRegions.size}/6 站 · 已登记星光点 ${list.filter(e=>e.starName).length} 人`;
+      `共 ${list.length} 人点亮 · 覆盖 ${litRegions.size}/6 站 · 已参与抽奖 ${list.filter(e=>e.starName).length} 人`;
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
